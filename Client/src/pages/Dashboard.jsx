@@ -1,16 +1,50 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Search, MessageSquare, Mail } from "lucide-react";
+import { Search, MessageSquare, Calendar, MapPin, Clock } from "lucide-react";
+import axios from 'axios';
+import './Dashboard.css';
+import EventDetailsModal from '../components/EventDetailsModal';
+import ItineraryDetailsModal from '../components/ItineraryDetailsModal';
+import Navbar from '../components/Navbar';
 
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  const [itineraries, setItineraries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedItinerary, setSelectedItinerary] = useState(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/');
+      return;
     }
+
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const [eventsRes, itinerariesRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/events', { headers }),
+          axios.get('http://localhost:5000/api/itineraries', { headers })
+        ]);
+
+        setEvents(eventsRes.data);
+        setItineraries(itinerariesRes.data);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [user, navigate]);
 
   const getUserInitials = () => {
@@ -21,51 +55,99 @@ function Dashboard() {
       .toUpperCase();
   };
 
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
+
   return (
-    <div className="app">
-      <nav className="navbar">
-        <div className="logo-container">
-          <img src="/logo.svg" alt="Journey Craft Logo" className="logo" />
-          <h1 className="logo-text">Journey Craft</h1>
-        </div>
+    <div className="dashboard">
+      <Navbar />
+      
+      <main className="dashboard-content">
+        <section className="welcome-section">
+          <h1>Welcome back, {user?.name}</h1>
+          <p>Here's what's coming up for you</p>
+        </section>
 
-        <div className="nav-links">
-          <a href="#" className="nav-link">My Trips</a>
-          <a href="#" className="nav-link">Events</a>
-          <a href="#" className="nav-link">Rewards</a>
-        </div>
-
-        <div className="nav-actions flex items-center gap-6">
-          <Search size={24} className="text-gray-600 hover:text-blue-600 cursor-pointer" />
-          <MessageSquare size={24} className="text-gray-600 hover:text-blue-600 cursor-pointer" />
-          <div 
-            className="user-initial-circle"
-            onClick={logout}
-            style={{
-              width: '40px',
-              height: '40px',
-              backgroundColor: '#4F46E5',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              cursor: 'pointer'
-            }}
-          >
-            {getUserInitials()}
+        <section id="events" className="dashboard-section">
+          <h2>Upcoming Events</h2>
+          <div className="events-grid">
+            {events.map(event => (
+              <div 
+                key={event._id} 
+                className="event-card" 
+                onClick={() => setSelectedEvent(event)}
+              >
+                {event.images?.[0] && (
+                  <img 
+                    src={event.images[0].url} 
+                    alt={event.title} 
+                    className="event-image"
+                  />
+                )}
+                <div className="event-details">
+                  <h3>{event.title}</h3>
+                  <p className="event-description">{event.description}</p>
+                  <div className="event-info">
+                    <span><Calendar size={16} /> {new Date(event.date).toLocaleDateString()}</span>
+                    <span><MapPin size={16} /> {event.location.city}, {event.location.country}</span>
+                    <span><Clock size={16} /> {event.duration.hours}h {event.duration.minutes}m</span>
+                  </div>
+                  <div className="event-price">
+                    ₹{event.price.amount} {event.price.currency}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </nav>
+        </section>
 
-      {/* Rest of the dashboard content similar to Home but personalized */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">Welcome back, {user?.name}</h1>
-        </div>
-      </section>
-
-      {/* Add your personalized dashboard sections here */}
+        <section id="itineraries" className="dashboard-section">
+          <h2>Your Itineraries</h2>
+          <div className="itineraries-grid">
+            {itineraries.map(itinerary => (
+              <div 
+                key={itinerary._id} 
+                className="itinerary-card"
+                onClick={() => setSelectedItinerary(itinerary)}
+              >
+                <div className="itinerary-details">
+                  <h3>{itinerary.title}</h3>
+                  <p className="itinerary-description">{itinerary.description}</p>
+                  <div className="itinerary-info">
+                    <div className="itinerary-stats">
+                      <span>{itinerary.days} Days</span>
+                      <span>{itinerary.nights} Nights</span>
+                      <span>₹{itinerary.price}</span>
+                    </div>
+                    <div className="itinerary-destinations">
+                      {itinerary.destinations.map((dest, index) => (
+                        <span key={index} className="destination-tag">
+                          <MapPin size={14} /> {dest.location}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="itinerary-status">
+                    Status: {itinerary.status}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+      {selectedEvent && (
+        <EventDetailsModal 
+          event={selectedEvent} 
+          onClose={() => setSelectedEvent(null)} 
+        />
+      )}
+      {selectedItinerary && (
+        <ItineraryDetailsModal 
+          itinerary={selectedItinerary} 
+          onClose={() => setSelectedItinerary(null)} 
+        />
+      )}
     </div>
   );
 }

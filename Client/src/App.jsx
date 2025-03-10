@@ -4,6 +4,9 @@ import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import { useAuth } from './context/AuthContext';
+import Trips from './pages/Trips';
+import Profile from './pages/Profile';
+import Events from './pages/Events';
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -19,6 +22,30 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/trips" 
+        element={
+          <PrivateRoute>
+            <Trips />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/events" 
+        element={
+          <PrivateRoute>
+            <Events />
           </PrivateRoute>
         } 
       />
