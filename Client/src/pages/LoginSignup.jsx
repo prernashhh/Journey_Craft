@@ -1,24 +1,60 @@
 import React, { useState } from "react";
-import { Mail } from "lucide-react";
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { Mail, User, Lock } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../context/AuthContext";
 import "./LoginSignup.css";
 
 function LoginSignup({ onClose }) {
   const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login, signup, googleSignIn } = useAuth();
 
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError(''); // Clear error when user types
   };
 
-  const handleGoogleSuccess = (credentialResponse) => {
-    console.log('Google Sign In Success:', credentialResponse);
-    // Send token to your backend
-    // TODO: Implement backend verification
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        await login(formData.email, formData.password);
+      } else {
+        await signup(formData);
+      }
+      onClose();
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Auth error:', err);
+      setError(err.response?.data?.error || 
+               err.response?.data?.message || 
+               "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleError = () => {
-    console.error('Google Sign In Failed');
-  };
+  async function handleGoogleSignIn() {
+    try {
+      await googleSignIn();
+      onClose();
+    } catch (err) {
+      setError("Failed to sign in with Google: " + err.message);
+    }
+  }
 
   return (
     <div className="login-signup-container">
@@ -27,11 +63,25 @@ function LoginSignup({ onClose }) {
         
         <h2 className="form-title">{isLogin ? "Login" : "Sign Up"}</h2>
         
-        <form className="auth-form">
+        {error && <div className="error-alert">{error}</div>}
+        
+        <form className="auth-form" onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="form-group">
               <label htmlFor="name">Full Name</label>
-              <input type="text" id="name" placeholder="Enter your full name" />
+              <div className="input-with-icon">
+                <User size={16} className="input-icon" />
+                <input 
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  required
+                  minLength={2}
+                />
+              </div>
             </div>
           )}
           
@@ -39,23 +89,41 @@ function LoginSignup({ onClose }) {
             <label htmlFor="email">Email</label>
             <div className="input-with-icon">
               <Mail size={16} className="input-icon" />
-              <input type="email" id="email" placeholder="Enter your email" />
+              <input 
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                required
+              />
             </div>
           </div>
           
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" />
+            <div className="input-with-icon">
+              <Lock size={16} className="input-icon" />
+              <input 
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+                minLength={6}
+              />
+            </div>
           </div>
           
-          {isLogin && (
-            <div className="forgot-password">
-              <a href="#">Forgot password?</a>
-            </div>
-          )}
-          
-          <button type="submit" className="auth-button">
-            {isLogin ? "Login" : "Sign Up"}
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? "Processing..." : (isLogin ? "Login" : "Sign Up")}
           </button>
         </form>
         
@@ -63,22 +131,26 @@ function LoginSignup({ onClose }) {
           <span>OR</span>
         </div>
         
-        <GoogleOAuthProvider clientId="YOUR_NEW_CLIENT_ID_HERE">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            width="100%"
-            theme="outline"
-            text={isLogin ? "Continue with Google" : "Sign up with Google"}
-            shape="rectangular"
-            useOneTap={true}
-          />
-        </GoogleOAuthProvider>
+        <button 
+          className="google-button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+        >
+          Continue with Google
+        </button>
         
         <div className="toggle-form">
           <p>
             {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <button className="toggle-button" onClick={toggleForm}>
+            <button 
+              type="button"
+              className="toggle-button" 
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+                setFormData({ name: '', email: '', password: '' });
+              }}
+            >
               {isLogin ? "Sign Up" : "Login"}
             </button>
           </p>
