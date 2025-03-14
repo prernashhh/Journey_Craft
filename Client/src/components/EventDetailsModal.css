@@ -53,6 +53,8 @@
 
 .modal-details {
   padding: 2rem;
+  /* Increase top padding to account for removed image */
+  padding-top: 3rem;
 }
 
 .modal-title {
@@ -162,6 +164,46 @@
 
 .book-button:hover {
   background: #0369a1;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.wishlist-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #475569;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wishlist-button:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.wishlist-button.in-wishlist {
+  border-color: #fecaca;
+  background-color: #fff1f2;
+  color: #ef4444;
+}
+
+.wishlist-button.in-wishlist:hover {
+  background-color: #fee2e2;
+}
+
+.wishlist-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {

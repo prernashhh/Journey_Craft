@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react"
-import { Search, MessageSquare, Mail, User } from "lucide-react"
-import axios from "axios"
-import "./Home.css"
-import LoginSignup from "./LoginSignup"
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, MessageSquare, User, Mail } from "lucide-react";
+import axios from "axios";
+import LoginSignup from "./LoginSignup";
+import Navbar from "../components/Navbar";
+import "./Home.css";
 
 function Dashboard() {
   const [showLoginSignup, setShowLoginSignup] = useState(false);
@@ -25,18 +27,6 @@ function Dashboard() {
 
     fetchEvents();
   }, []);
-
-  const handleNavClick = (e) => {
-    // Check if the click is on the logo or logo text
-    const isLogo = e.target.classList.contains('logo') || 
-                   e.target.classList.contains('logo-text') ||
-                   e.target.closest('.logo-container');
-    
-    if (!isLogo) {
-      e.preventDefault();
-      setShowLoginSignup(true);
-    }
-  };
 
   const closeLoginSignup = () => {
     setShowLoginSignup(false);
@@ -79,43 +69,8 @@ function Dashboard() {
 
   return (
     <div className="app">
-      {/* Navigation */}
-      <nav className="navbar" onClick={handleNavClick}>
-        <div className="logo-container">
-          <img src="/logo.svg" alt="Journey Craft Logo" className="logo" />
-          <h1 className="logo-text">Journey Craft</h1>
-        </div>
-
-        <div className="nav-links">
-          <a href="#" className="nav-link">
-            Trips
-          </a>
-          <a href="#" className="nav-link">
-            Events
-          </a>
-          <a href="#" className="nav-link">
-            Rewards
-          </a>
-        </div>
-
-        <div className="nav-actions flex items-center gap-6">
-          <Search 
-            size={24} 
-            className="text-gray-600 hover:text-blue-600 cursor-pointer" 
-            onClick={() => setShowLoginSignup(true)}
-          />
-          <MessageSquare 
-            size={24} 
-            className="text-gray-600 hover:text-blue-600 cursor-pointer" 
-            onClick={() => setShowLoginSignup(true)}
-          />
-          <User 
-            size={24} 
-            className="text-gray-600 hover:text-blue-600 cursor-pointer" 
-            onClick={() => setShowLoginSignup(true)}
-          />
-        </div>
-      </nav>
+      <Navbar isHomePage={true} onLoginClick={() => setShowLoginSignup(true)} />
+      <div className="navbar-spacer"></div> {/* Add this spacer */}
 
       {/* Login/Signup Modal */}
       {showLoginSignup && <LoginSignup onClose={closeLoginSignup} />}
@@ -258,4 +213,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default Dashboard;

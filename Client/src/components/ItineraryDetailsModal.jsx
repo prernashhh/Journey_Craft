@@ -1,7 +1,61 @@
-import { X, MapPin, Calendar, Clock, Star } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, MapPin, Calendar, Clock, Star, Heart } from "lucide-react";
+import axios from "axios";
 import "./ItineraryDetailsModal.css";
 
 function ItineraryDetailsModal({ itinerary, onClose }) {
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get(
+          `http://localhost:5000/api/wishlist/check/itinerary/${itinerary._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setIsInWishlist(response.data.inWishlist);
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [itinerary._id]);
+
+  const toggleWishlist = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to add to wishlist');
+        return;
+      }
+
+      if (isInWishlist) {
+        await axios.delete(
+          `http://localhost:5000/api/wishlist/itineraries/${itinerary._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        await axios.post(
+          'http://localhost:5000/api/wishlist/itineraries',
+          { itineraryId: itinerary._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      setIsInWishlist(!isInWishlist);
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update wishlist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!itinerary) return null;
 
   return (
@@ -92,6 +146,14 @@ function ItineraryDetailsModal({ itinerary, onClose }) {
               <span className="price-amount">₹{itinerary.price}</span>
             </div>
             <div className="action-buttons">
+              <button 
+                className={`wishlist-button ${isInWishlist ? 'in-wishlist' : ''}`} 
+                onClick={toggleWishlist}
+                disabled={loading}
+              >
+                <Heart size={20} fill={isInWishlist ? "#ef4444" : "none"} />
+                {isInWishlist ? 'Saved' : 'Save'}
+              </button>
               <button className="book-button">Book Now</button>
               <div className="status-badge" data-status={itinerary.status.toLowerCase()}>
                 {itinerary.status}

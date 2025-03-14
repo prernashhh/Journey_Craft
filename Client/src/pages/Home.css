@@ -90,7 +90,7 @@ body {
 .hero {
   height: 70vh; /* Reduced from 90vh */
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-              url('C:\Project\Client\src\assets\car.png');
+              url('../assets/car.png'); /* Corrected path */
   background-size: cover;
   background-position: center;
   display: flex;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, Star } from "lucide-react";
 import axios from 'axios';
 import './Trips.css';

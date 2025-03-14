@@ -1,10 +1,32 @@
-import { X, Calendar, MapPin, Clock, Users, Tag } from "lucide-react";
+import { X, Calendar, MapPin, Clock, Users, Tag, Heart } from "lucide-react";
 import "./EventDetailsModal.css";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PaymentModal from './PaymentModal';
+import axios from 'axios';
 
 function EventDetailsModal({ event, onClose }) {
   const [showPayment, setShowPayment] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get(
+          `http://localhost:5000/api/wishlist/check/event/${event._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setIsInWishlist(response.data.inWishlist);
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [event._id]);
 
   const handleBooking = () => {
     setShowPayment(true);
@@ -13,6 +35,36 @@ function EventDetailsModal({ event, onClose }) {
   const handlePaymentSuccess = () => {
     // Here you would typically update the booking status
     alert('Booking successful!');
+  };
+
+  const toggleWishlist = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to add to wishlist');
+        return;
+      }
+
+      if (isInWishlist) {
+        await axios.delete(
+          `http://localhost:5000/api/wishlist/events/${event._id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        await axios.post(
+          'http://localhost:5000/api/wishlist/events',
+          { eventId: event._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      setIsInWishlist(!isInWishlist);
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update wishlist');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!event) return null;
@@ -25,6 +77,7 @@ function EventDetailsModal({ event, onClose }) {
             <X size={24} />
           </button>
 
+          {/* Image display temporarily removed
           {event.images?.[0] && (
             <div className="modal-image-container">
               <img 
@@ -34,6 +87,7 @@ function EventDetailsModal({ event, onClose }) {
               />
             </div>
           )}
+          */}
 
           <div className="modal-details">
             <h2 className="modal-title">{event.title}</h2>
@@ -86,7 +140,17 @@ function EventDetailsModal({ event, onClose }) {
                 <span className="price-amount">₹{event.price.amount}</span>
                 <span className="price-currency">{event.price.currency}</span>
               </div>
-              <button className="book-button" onClick={handleBooking}>Book Now</button>
+              <div className="modal-actions">
+                <button 
+                  className={`wishlist-button ${isInWishlist ? 'in-wishlist' : ''}`} 
+                  onClick={toggleWishlist}
+                  disabled={loading}
+                >
+                  <Heart size={20} fill={isInWishlist ? "#ef4444" : "none"} />
+                  {isInWishlist ? 'Saved' : 'Save'}
+                </button>
+                <button className="book-button" onClick={handleBooking}>Book Now</button>
+              </div>
             </div>
           </div>
         </div>

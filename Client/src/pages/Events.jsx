@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Calendar, MapPin, Clock, Tag } from "lucide-react";
 import axios from 'axios';
 import './Events.css';
@@ -77,6 +77,7 @@ function Events() {
               className="event-card"
               onClick={() => setSelectedEvent(event)}
             >
+              {/* Image display temporarily removed 
               {event.images?.[0] && (
                 <img 
                   src={event.images[0].url} 
@@ -84,6 +85,7 @@ function Events() {
                   className="event-image"
                 />
               )}
+              */}
               
               <div className="event-details">
                 <h2 className="event-title">{event.title}</h2>

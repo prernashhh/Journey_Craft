@@ -15,7 +15,7 @@
   padding: 3rem 2rem;
   border-radius: 1rem;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-              url('../assets/car.png');
+              url('../assets/car.png'); /* Corrected path */
   background-size: cover;
   background-position: center;
   color: white;

@@ -36,9 +36,10 @@ const validateRegistration = (name, email, password) => {
     };
 };
 
+// Update the register function to accept role
 const register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         // Validate required fields
         if (!name || !email || !password) {
@@ -63,11 +64,12 @@ const register = async (req, res) => {
             });
         }
 
-        // Create user
+        // Create user with role (default to 'traveller' if not specified)
         const user = await User.create({
             name: name.trim(),
             email: email.toLowerCase(),
-            password
+            password,
+            role: role || 'traveller'
         });
 
         // Generate token
@@ -80,7 +82,8 @@ const register = async (req, res) => {
                 user: {
                     id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    role: user.role
                 },
                 token
             }
@@ -95,6 +98,7 @@ const register = async (req, res) => {
     }
 };
 
+// Update other relevant functions to include role in response
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -110,7 +114,8 @@ const login = async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             },
             token
         });
@@ -125,7 +130,8 @@ const getProfile = async (req, res) => {
         res.json({
             id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            role: user.role
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -153,9 +159,63 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// Update Google auth to include role selection
+const googleAuth = async (req, res) => {
+    try {
+        const { name, email, uid, photoURL, role } = req.body;
+
+        if (!email || !uid) {
+            return res.status(400).json({ error: 'Missing required fields from Google authentication' });
+        }
+
+        // Check if user already exists
+        let user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            // Create new user if doesn't exist
+            user = await User.create({
+                name: name || 'Google User',
+                email: email.toLowerCase(),
+                googleId: uid,
+                profilePicture: photoURL || '',
+                role: role || 'traveller', // Default to traveller if not specified
+                password: uid + process.env.JWT_SECRET, // Create a secure password they'll never use
+            });
+        } else {
+            // Update existing user with Google ID if needed
+            if (!user.googleId) {
+                user.googleId = uid;
+                await user.save();
+            }
+        }
+
+        // Generate token
+        const token = generateToken(user._id);
+
+        // Send response
+        res.status(200).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                profilePicture: user.profilePicture || '',
+                role: user.role
+            },
+            token
+        });
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.status(500).json({
+            error: 'Google authentication failed',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
     getProfile,
-    updateProfile
+    updateProfile,
+    googleAuth
 };

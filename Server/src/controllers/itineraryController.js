@@ -1,22 +1,44 @@
 const Itinerary = require('../models/Itinerary');
 
 const itineraryController = {
-    // Create new itinerary
+    // Create new itinerary - only trip managers can create itineraries
     createItinerary: async (req, res) => {
         try {
-            // Temporarily add a dummy user ID for testing
+            // Log received data for debugging
+            console.log('Received data:', req.body);
+            
+            // Basic validation
+            if (!req.body.title || !req.body.destination || !req.body.startDate || !req.body.endDate) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+            
+            // Format validation
+            if (req.body.startDate > req.body.endDate) {
+                return res.status(400).json({ error: 'Start date cannot be after end date' });
+            }
+            
+            // Use the authenticated user's ID from req.user
             const newItinerary = new Itinerary({
                 ...req.body,
-                user: "65f1a2b3c4d5e6f7g8h9i0j1" // Temporary dummy user ID
+                user: req.user._id
             });
+            
             const savedItinerary = await newItinerary.save();
             res.status(201).json(savedItinerary);
         } catch (err) {
+            console.error('Error creating itinerary:', err);
+            
+            // Return more specific error for MongoDB validation errors
+            if (err.name === 'ValidationError') {
+                const errors = Object.values(err.errors).map(e => e.message);
+                return res.status(400).json({ error: errors.join(', ') });
+            }
+            
             res.status(400).json({ error: err.message });
         }
     },
 
-    // Get all itineraries
+    // Get all itineraries - both user types can access this
     getAllItineraries: async (req, res) => {
         try {
             const itineraries = await Itinerary.find();
@@ -26,6 +48,16 @@ const itineraryController = {
         }
     },
 
+    // Get itineraries by a user
+    getUserItineraries: async (req, res) => {
+        try {
+            const itineraries = await Itinerary.find({ user: req.user._id });
+            res.json(itineraries);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+    
     // Get an itinerary by ID
     getItineraryById: async (req, res) => {
         try {

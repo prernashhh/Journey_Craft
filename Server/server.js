@@ -8,6 +8,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const itineraryRoutes = require('./src/routes/itineraryRoutes');
+const wishlistRoutes = require('./src/routes/wishlistRoutes');
 
 const app = express();
 
@@ -20,34 +21,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check route
-app.get('/', (req, res) => {
-    res.json({ message: 'JourneyCraft API is running' });
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
 });
 
-// API Routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/itineraries', itineraryRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ 
-        status: 'error',
-        message: err.message || 'Something went wrong!' 
-    });
+  console.error(err.stack);
+  res.status(500).json({ 
+    status: 'error',
+    message: err.message || 'Something went wrong!' 
+  });
 });
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).json({ 
-        status: 'error',
-        message: `Route ${req.originalUrl} not found`
-    });
+  res.status(404).json({ 
+    status: 'error',
+    message: `Route ${req.originalUrl} not found`
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

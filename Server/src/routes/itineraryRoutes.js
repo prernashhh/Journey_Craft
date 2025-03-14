@@ -1,59 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const Itinerary = require('../models/Itinerary');
+const { protect, isTripManager } = require('../middleware/auth');
+const itineraryController = require('../controllers/itineraryController');
 
-// Create an itinerary
-router.post('/', async (req, res) => {
-    try {
-        const itinerary = new Itinerary(req.body);
-        await itinerary.save();
-        res.status(201).json(itinerary);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+// Create an itinerary - only trip managers
+router.post('/', protect, isTripManager, itineraryController.createItinerary);
 
-// Get all itineraries
-router.get('/', async (req, res) => {
-    try {
-        const itineraries = await Itinerary.find();
-        res.json(itineraries);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Get all itineraries - all authenticated users
+router.get('/', protect, itineraryController.getAllItineraries);
 
-// Get an itinerary by ID
-router.get('/:id', async (req, res) => {
-    try {
-        const itinerary = await Itinerary.findById(req.params.id);
-        if (!itinerary) return res.status(404).json({ error: 'Itinerary not found' });
-        res.json(itinerary);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Get user's itineraries - all authenticated users
+router.get('/my-itineraries', protect, itineraryController.getUserItineraries);
 
-// Update an itinerary
-router.put('/:id', async (req, res) => {
-    try {
-        const itinerary = await Itinerary.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!itinerary) return res.status(404).json({ error: 'Itinerary not found' });
-        res.json(itinerary);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+// Get an itinerary by ID - all authenticated users
+router.get('/:id', protect, itineraryController.getItineraryById);
 
-// Delete an itinerary
-router.delete('/:id', async (req, res) => {
-    try {
-        const itinerary = await Itinerary.findByIdAndDelete(req.params.id);
-        if (!itinerary) return res.status(404).json({ error: 'Itinerary not found' });
-        res.json({ message: 'Itinerary deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Update an itinerary - only trip managers
+router.put('/:id', protect, isTripManager, itineraryController.updateItinerary);
+
+// Delete an itinerary - only trip managers
+router.delete('/:id', protect, isTripManager, itineraryController.deleteItinerary);
 
 module.exports = router;

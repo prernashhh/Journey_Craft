@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Search, MessageSquare, Calendar, MapPin, Clock } from "lucide-react";
@@ -61,6 +61,7 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <Navbar />
+      <div className="navbar-spacer"></div> {/* Add this spacer */}
       
       <main className="dashboard-content">
         <section className="welcome-section">
@@ -77,6 +78,7 @@ function Dashboard() {
                 className="event-card" 
                 onClick={() => setSelectedEvent(event)}
               >
+                {/* Image display temporarily removed
                 {event.images?.[0] && (
                   <img 
                     src={event.images[0].url} 
@@ -84,6 +86,7 @@ function Dashboard() {
                     className="event-image"
                   />
                 )}
+                */}
                 <div className="event-details">
                   <h3>{event.title}</h3>
                   <p className="event-description">{event.description}</p>
