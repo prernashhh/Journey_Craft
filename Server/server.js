@@ -3,12 +3,28 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./src/config/db');
 
+// Add this to the top of your index.js file to suppress the warning
+
+// This is to suppress the React StrictMode warning about UNSAFE_componentWillMount
+// It's coming from a third-party library and we can't fix it directly
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('Using UNSAFE_componentWillMount in strict mode')
+  ) {
+    return;
+  }
+  originalConsoleError(...args);
+};
+
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const itineraryRoutes = require('./src/routes/itineraryRoutes');
 const wishlistRoutes = require('./src/routes/wishlistRoutes');
+const messageRoutes = require('./src/routes/messageRoutes'); // Add this line
 
 const app = express();
 
@@ -31,13 +47,14 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/messages', messageRoutes); // Update this line
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     status: 'error',
-    message: err.message || 'Something went wrong!' 
+    message: err.message || 'Something went wrong!'
   });
 });
 
@@ -53,3 +70,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;

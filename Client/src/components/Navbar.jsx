@@ -104,7 +104,9 @@ function Navbar({ isHomePage, onLoginClick }) {
 
       <div className="nav-actions desktop-actions">
         <Search size={24} className="nav-icon" />
-        <MessageSquare size={24} className="nav-icon" />
+        <Link to="/messages" className="nav-icon-link">
+          <MessageSquare size={24} className="nav-icon" />
+        </Link>
         <div 
           className="user-initial-circle" 
           onClick={() => navigate('/profile')}
@@ -151,6 +153,9 @@ function Navbar({ isHomePage, onLoginClick }) {
           </Link>
           <Link to="/profile" className="mobile-nav-link" onClick={closeMobileMenu}>
             Profile
+          </Link>
+          <Link to="/messages" className="mobile-nav-link" onClick={closeMobileMenu}>
+            Messages
           </Link>
           <button className="mobile-logout-button" onClick={logout}>
             Logout

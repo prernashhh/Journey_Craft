@@ -13,6 +13,7 @@ import LoginSignup from './pages/LoginSignup';
 import TripDetail from './pages/TripDetail';
 import EditTrip from './pages/EditTrip';
 import Rewards from './pages/Rewards';
+import Messages from './pages/Messages';
 import './App.css';
 
 function App() {
@@ -91,6 +92,11 @@ function App() {
         <Route 
           path="/rewards" 
           element={<Rewards />} 
+        />
+
+        <Route 
+          path="/messages" 
+          element={isAuthenticated ? <Messages /> : <Navigate to="/" />} 
         />
       </Routes>
       {isAuthenticated && <Footer />}

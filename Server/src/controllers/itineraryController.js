@@ -41,7 +41,8 @@ const itineraryController = {
     // Get all itineraries - both user types can access this
     getAllItineraries: async (req, res) => {
         try {
-            const itineraries = await Itinerary.find();
+            const itineraries = await Itinerary.find()
+                .populate('user', 'name email role'); // Populate organizer info
             res.json(itineraries);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -61,7 +62,9 @@ const itineraryController = {
     // Get an itinerary by ID
     getItineraryById: async (req, res) => {
         try {
-            const itinerary = await Itinerary.findById(req.params.id);
+            const itinerary = await Itinerary.findById(req.params.id)
+                .populate('user', 'name email role'); // Populate organizer info
+            
             if (!itinerary) return res.status(404).json({ error: 'Itinerary not found' });
             res.json(itinerary);
         } catch (error) {
@@ -86,6 +89,35 @@ const itineraryController = {
             const itinerary = await Itinerary.findByIdAndDelete(req.params.id);
             if (!itinerary) return res.status(404).json({ error: 'Itinerary not found' });
             res.json({ message: 'Itinerary deleted successfully' });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Update the getItineraries function to populate organizer
+    getItineraries: async (req, res) => {
+        try {
+            const itineraries = await Itinerary.find()
+                .populate('organizer', 'name role')
+                .sort('-createdAt');
+            
+            res.json(itineraries);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Update getSingleItinerary function
+    getSingleItinerary: async (req, res) => {
+        try {
+            const itinerary = await Itinerary.findById(req.params.id)
+                .populate('organizer', 'name role'); 
+            
+            if (!itinerary) {
+                return res.status(404).json({ message: 'Itinerary not found' });
+            }
+            
+            res.json(itinerary);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

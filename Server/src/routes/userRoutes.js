@@ -1,18 +1,37 @@
 // src/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const { protect } = require('../middleware/auth'); 
 const {
     createUser,
     getAllUsers,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    followUser, 
+    unfollowUser, 
+    getFollowing, 
+    getFollowers,
+    checkFollowStatus,
+    getMutualFollowers
 } = require('../controllers/userController');
 
-// User routes
+// Place special routes BEFORE the /:id route to prevent path conflicts
+// User account management
 router.post('/', protect, createUser);
 router.get('/', protect, getAllUsers);
+
+// Special routes for current user
+router.get('/me/following', protect, getFollowing); 
+router.get('/me/followers', protect, getFollowers); 
+router.get('/me/mutual-followers', protect, getMutualFollowers); // Change path here
+
+// Follow/unfollow routes
+router.post('/follow/:userId', protect, followUser);
+router.delete('/follow/:userId', protect, unfollowUser);
+router.get('/follow-status/:userId', protect, checkFollowStatus);
+
+// This should come AFTER all other specialized routes
 router.get('/:id', protect, getUserById);
 router.put('/:id', protect, updateUser);
 router.delete('/:id', protect, deleteUser);

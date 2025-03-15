@@ -13,6 +13,11 @@ const ItinerarySchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    organizer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     destinations: [
         {
             location: String,
@@ -47,13 +52,15 @@ const ItinerarySchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Draft', 'Confirmed', 'Completed'],
+        enum: ['Draft', 'Published', 'Confirmed', 'Completed'],
         default: 'Draft',
     },
     createdAt: {
         type: Date,
         default: Date.now,
     },
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Itinerary', ItinerarySchema);

@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please provide a password'],
-        minlength: 6,
+        minlength: [6, 'Password must be at least 6 characters'],
         select: false
     },
     googleId: {
@@ -34,13 +34,23 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['traveller', 'trip_manager'],
+        enum: ['traveller', 'trip_manager', 'admin'],
         default: 'traveller'
     },
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
     }
+}, {
+    timestamps: true
 });
 
 // Hash password before saving

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, MapPin, Calendar, Heart, Trash2, Eye } from "lucide-react";
+import { User, Mail, MapPin, Calendar, Heart, Trash2, Eye, UserCheck, UserPlus, Users } from "lucide-react";
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import './Profile.css';
@@ -26,12 +26,41 @@ function Profile() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedItinerary, setSelectedItinerary] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
+  const [followingList, setFollowingList] = useState([]);
+  const [followersList, setFollowersList] = useState([]);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     if (activeTab === 'wishlist') {
       fetchWishlist();
+    } else if (activeTab === 'following' || activeTab === 'followers') {
+      fetchFollowData();
     }
   }, [activeTab]);
+
+  // Update the fetchFollowData function
+  const fetchFollowData = async () => {
+    try {
+      setFollowLoading(true);
+      const token = localStorage.getItem('token');
+      
+      // Fix these URLs by adding /me before /following and /followers
+      const followingResponse = await axios.get('http://localhost:5000/api/users/me/following', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const followersResponse = await axios.get('http://localhost:5000/api/users/me/followers', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setFollowingList(followingResponse.data);
+      setFollowersList(followersResponse.data);
+    } catch (err) {
+      console.error('Error fetching follow data:', err);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   const fetchWishlist = async () => {
     try {
@@ -101,6 +130,40 @@ function Profile() {
     }
   };
 
+  // Update handleFollow function
+  const handleFollow = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`http://localhost:5000/api/users/follow/${userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchFollowData(); // Refresh the lists
+    } catch (err) {
+      console.error('Error following user:', err);
+      // Add error handling - display message to user
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error);
+      }
+    }
+  };
+
+  // Update handleUnfollow function
+  const handleUnfollow = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/users/follow/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchFollowData(); // Refresh the lists
+    } catch (err) {
+      console.error('Error unfollowing user:', err);
+      // Add error handling
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error);
+      }
+    }
+  };
+
   return (
     <div className="profile-page">
       <Navbar />
@@ -114,7 +177,19 @@ function Profile() {
           </div>
           <div className="profile-title">
             <h1>My Profile</h1>
-            <p>Manage your personal information and account settings</p>
+            <p>
+              Manage your personal information, account settings, and connections
+            </p>
+            <div className="profile-stats">
+              <div className="stat">
+                <span className="stat-value">{followersList.length}</span>
+                <span className="stat-label">Followers</span>
+              </div>
+              <div className="stat">
+                <span className="stat-value">{followingList.length}</span>
+                <span className="stat-label">Following</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -130,6 +205,18 @@ function Profile() {
             onClick={() => setActiveTab('wishlist')}
           >
             Wishlist
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'following' ? 'active' : ''}`}
+            onClick={() => setActiveTab('following')}
+          >
+            Following
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'followers' ? 'active' : ''}`}
+            onClick={() => setActiveTab('followers')}
+          >
+            Followers
           </button>
         </div>
 
@@ -301,6 +388,11 @@ function Profile() {
                               )}
                             </div>
                             <div className="wishlist-price">₹{itinerary.price}</div>
+                            {itinerary.organizer && (
+                              <div className="wishlist-organizer">
+                                <User size={14} /> By {itinerary.organizer.name}
+                              </div>
+                            )}
                           </div>
                           <div className="wishlist-card-actions">
                             <button 
@@ -325,6 +417,78 @@ function Profile() {
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {activeTab === 'following' && (
+          <div className="connections-content">
+            <div className="connections-section">
+              <h2>People You Follow</h2>
+              {followLoading ? (
+                <div className="loading">Loading...</div>
+              ) : followingList.length === 0 ? (
+                <p className="no-items-message">You are not following anyone yet</p>
+              ) : (
+                <div className="connections-grid">
+                  {followingList.map(followedUser => (
+                    <div key={followedUser._id} className="connection-card">
+                      <div className="connection-avatar">
+                        {followedUser.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="connection-details">
+                        <h3 className="connection-name">{followedUser.name}</h3>
+                        <p className="connection-role">
+                          {followedUser.role === 'trip_manager' ? 'Trip Manager' : 'Traveller'}
+                        </p>
+                        <p className="connection-email">{followedUser.email}</p>
+                      </div>
+                      <button 
+                        className="unfollow-button"
+                        onClick={() => handleUnfollow(followedUser._id)}
+                      >
+                        <UserCheck size={18} /> Unfollow
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'followers' && (
+          <div className="connections-content">
+            <div className="connections-section">
+              <h2>People Following You</h2>
+              {followLoading ? (
+                <div className="loading">Loading...</div>
+              ) : followersList.length === 0 ? (
+                <p className="no-items-message">You don't have any followers yet</p>
+              ) : (
+                <div className="connections-grid">
+                  {followersList.map(follower => (
+                    <div key={follower._id} className="connection-card">
+                      <div className="connection-avatar">
+                        {follower.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="connection-details">
+                        <h3 className="connection-name">{follower.name}</h3>
+                        <p className="connection-role">
+                          {follower.role === 'trip_manager' ? 'Trip Manager' : 'Traveller'}
+                        </p>
+                        <p className="connection-email">{follower.email}</p>
+                      </div>
+                      <button 
+                        className="follow-button"
+                        onClick={() => handleFollow(follower._id)}
+                      >
+                        <UserPlus size={18} /> Follow Back
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

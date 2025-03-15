@@ -124,14 +124,19 @@ const login = async (req, res) => {
     }
 };
 
+// In the getProfile function, update to include following/followers count
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
+        
         res.json({
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            followingCount: user.following?.length || 0,
+            followersCount: user.followers?.length || 0,
+            createdAt: user.createdAt
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
