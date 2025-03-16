@@ -15,10 +15,31 @@
   margin-bottom: 1.5rem;
 }
 
-.search-container {
-  position: relative;
-  max-width: 600px;
+.search-create-container {
+  display: flex;
+  align-items: center;
+  gap: 25rem; /* Adds spacing between search bar and button */
 }
+
+.search-container {
+  flex: 1; /* Expands to take available space */
+}
+
+.create-trip-btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  background-color: #0284c7;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.create-trip-btn:hover {
+  background-color: #0369a1;
+}
+
 
 .search-icon {
   position: absolute;

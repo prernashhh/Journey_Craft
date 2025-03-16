@@ -47,12 +47,8 @@ function Dashboard() {
     fetchData();
   }, [user, navigate]);
 
-  const getUserInitials = () => {
-    if (!user?.name) return '';
-    return user.name.split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase();
+  const handleCreateTrip = () => {
+    navigate('/create-trip');
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -65,8 +61,14 @@ function Dashboard() {
       
       <main className="dashboard-content">
         <section className="welcome-section">
-          <h1>Welcome back, {user?.name}</h1>
-          <p>Here's what's coming up for you</p>
+          <h1>Welcome, {user?.name}</h1>
+          <p><br/></p>
+          <button 
+            className="create-trip-btn"
+            onClick={handleCreateTrip}
+          >
+            Create Trip
+          </button>
         </section>
 
         <section id="events" className="dashboard-section">

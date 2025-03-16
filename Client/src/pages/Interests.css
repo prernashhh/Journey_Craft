@@ -1,0 +1,46 @@
+.interests-page {
+  padding: 2rem;
+  text-align: center;
+}
+
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.interest-item {
+  padding: 1rem 2rem;
+  border: 1px solid #0284c7;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.interest-item.selected {
+  background-color: #0284c7;
+  color: white;
+}
+
+.interest-item:hover {
+  background-color: #0369a1;
+  color: white;
+}
+
+.submit-btn {
+  margin-top: 2rem;
+  background-color: #0284c7;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #0369a1;
+}

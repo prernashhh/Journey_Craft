@@ -4,6 +4,7 @@ import axios from 'axios';
 import './Trips.css';
 import ItineraryDetailsModal from '../components/ItineraryDetailsModal';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 function Trips() {
   const [itineraries, setItineraries] = useState([]);
@@ -12,6 +13,7 @@ function Trips() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItinerary, setSelectedItinerary] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchItineraries = async () => {
@@ -33,25 +35,23 @@ function Trips() {
     fetchItineraries();
   }, []);
 
-  // Update the handleSearch function
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
     
     const filtered = itineraries.filter(itinerary => {
-      // Check title match
       const titleMatch = itinerary.title.toLowerCase().includes(query);
-      
-      // Check destinations match
       const destinationMatch = itinerary.destinations.some(dest => 
         dest.location.toLowerCase().includes(query)
       );
-
-      // Return true if either title or any destination matches
       return titleMatch || destinationMatch;
     });
     
     setFilteredItineraries(filtered);
+  };
+
+  const handleCreateTrip = () => {
+    navigate('/create-trip');
   };
 
   if (loading) return <div className="loading">Loading itineraries...</div>;
@@ -64,15 +64,23 @@ function Trips() {
       <div className="trips-page">
         <div className="trips-header">
           <h1>Explore Trips</h1>
-          <div className="search-container">
-            <Search className="search-icon" size={20} />
-            <input
-              type="text"
-              placeholder="Search trips by name, description, or destination..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className="search-input"
-            />
+          <div className="search-create-container">
+            <div className="search-container">
+              <Search className="search-icon" size={20} />
+              <input
+                type="text"
+                placeholder="Search trips by name, description, or destination..."
+                value={searchQuery}
+                onChange={handleSearch}
+                className="search-input"
+              />
+            </div>
+            <button 
+              className="create-trip-btn"
+              onClick={handleCreateTrip}
+            >
+              + Create Trip
+            </button>
           </div>
         </div>
 

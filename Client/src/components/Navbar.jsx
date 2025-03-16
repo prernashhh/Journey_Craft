@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, MessageSquare, Menu, X, User } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
+import logo from '../assets/logo.png'; // Ensure this path is correct
 
 function Navbar({ isHomePage, onLoginClick }) {
   const { user, logout } = useAuth();
@@ -44,7 +45,7 @@ function Navbar({ isHomePage, onLoginClick }) {
     return (
       <nav className="navbar" onClick={handleNavClick}>
         <div className="logo-container">
-          <img src="/logo.svg" alt="Journey Craft Logo" className="logo" />
+          <img src={logo} alt="Journey Craft Logo" className="logo" />
           <h1 className="logo-text">Journey Craft</h1>
         </div>
 
@@ -79,15 +80,12 @@ function Navbar({ isHomePage, onLoginClick }) {
   return (
     <nav className="navbar">
       <div className="logo-container" onClick={() => navigate('/dashboard')}>
-        <img src="/logo.svg" alt="Journey Craft Logo" className="logo" />
+        <img src={logo} alt="Journey Craft Logo" className="logo" />
         <h1 className="logo-text">Journey Craft</h1>
       </div>
 
       {/* Desktop Navigation */}
       <div className="nav-links desktop-nav">
-        <Link to={user?.role === 'trip_manager' ? "/manager-dashboard" : "/dashboard"} className="nav-link">
-          Dashboard
-        </Link>
         {user?.role === 'trip_manager' && (
           <Link to="/create-trip" className="nav-link">Create Trip</Link>
         )}

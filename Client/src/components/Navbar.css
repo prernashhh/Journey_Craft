@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: fixed; /* Change from relative to fixed */
   top: 0;
@@ -26,8 +26,8 @@
 }
 
 .logo {
-  width: 32px;
-  height: 32px;
+  width: 50px !important;
+  height: auto !important;
 }
 
 .logo-text {

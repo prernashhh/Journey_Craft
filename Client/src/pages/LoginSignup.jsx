@@ -37,6 +37,7 @@ function LoginSignup({ onClose }) {
         await login(formData.email, formData.password);
       } else {
         await signup(formData);
+        navigate('/interests'); // Redirect to Interests page after signup
       }
       onClose();
       navigate('/dashboard');
