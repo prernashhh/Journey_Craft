@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Mail, User, Lock } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
-import { googleProvider, signInWithPopup, auth } from "../config/firebase";
 import axios from "axios";
 import "./LoginSignup.css";
 
@@ -33,19 +32,33 @@ function LoginSignup({ onClose }) {
     setLoading(true);
 
     try {
+      const registerData = {
+        name: formData.name.trim(),
+        email: formData.email.toLowerCase(),
+        password: formData.password,
+        role: formData.role || 'traveller'
+      };
+
       if (isLogin) {
-        await login(formData.email, formData.password);
+        const response = await axios.post('http://localhost:5000/api/auth/login', {
+          email: formData.email,
+          password: formData.password
+        });
+        const { token, user } = response.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        navigate('/dashboard');
       } else {
-        await signup(formData);
-        navigate('/interests'); // Redirect to Interests page after signup
+        const response = await axios.post('http://localhost:5000/api/auth/register', registerData);
+        const { token, user } = response.data.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        navigate('/interests');
       }
       onClose();
-      navigate('/dashboard');
     } catch (err) {
       console.error('Auth error:', err);
-      setError(err.response?.data?.error || 
-               err.response?.data?.message || 
-               "Authentication failed");
+      setError(err.response?.data?.error || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -81,7 +94,6 @@ function LoginSignup({ onClose }) {
       
       // Close modal and navigate
       onClose();
-      
       // Navigate based on role
       if (response.data.user.role === 'trip_manager') {
         navigate('/manager-dashboard');

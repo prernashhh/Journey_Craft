@@ -245,6 +245,25 @@ const getMutualFollowers = async (req, res) => {
   }
 };
 
+const updateUserInterests = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { interests: req.body.interests },
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ message: "Interests updated successfully", user });
+    } catch (error) {
+        console.error("Error updating interests:", error.message);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 // Export all functions
 module.exports = { 
   createUser, 
@@ -257,5 +276,6 @@ module.exports = {
   getFollowing, 
   getFollowers,
   checkFollowStatus,
-  getMutualFollowers
+  getMutualFollowers,
+  updateUserInterests
 };

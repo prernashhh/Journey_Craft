@@ -1,46 +1,70 @@
-.interests-page {
-  padding: 2rem;
-  text-align: center;
+.interests-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
 }
 
 .interests-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
 }
 
 .interest-item {
-  padding: 1rem 2rem;
-  border: 1px solid #0284c7;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.interest-item.selected {
-  background-color: #0284c7;
-  color: white;
+.interest-item input {
+    margin-right: 10px;
 }
 
-.interest-item:hover {
-  background-color: #0369a1;
-  color: white;
+.submit-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.submit-btn {
-  margin-top: 2rem;
-  background-color: #0284c7;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
+.submit-button:hover {
+    background-color: #0056b3;
 }
 
-.submit-btn:hover {
-  background-color: #0369a1;
+.error-message {
+    color: #dc3545;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #ffd7d7;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.interest-item input:disabled + label {
+    color: #999;
+    cursor: not-allowed;
 }

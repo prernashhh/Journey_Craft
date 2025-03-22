@@ -45,6 +45,10 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
+    interests: {
+        type: [String],
+        default: []
+    },
     createdAt: {
         type: Date,
         default: Date.now

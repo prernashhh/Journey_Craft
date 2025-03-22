@@ -13,7 +13,8 @@ const {
     getFollowing, 
     getFollowers,
     checkFollowStatus,
-    getMutualFollowers
+    getMutualFollowers,
+    updateUserInterests
 } = require('../controllers/userController');
 
 // Place special routes BEFORE the /:id route to prevent path conflicts
@@ -24,14 +25,14 @@ router.get('/', protect, getAllUsers);
 // Special routes for current user
 router.get('/me/following', protect, getFollowing); 
 router.get('/me/followers', protect, getFollowers); 
-router.get('/me/mutual-followers', protect, getMutualFollowers); // Change path here
+router.get('/me/mutual-followers', protect, getMutualFollowers); 
+router.put('/me/interests', protect, updateUserInterests); // Add this route
 
 // Follow/unfollow routes
 router.post('/follow/:userId', protect, followUser);
 router.delete('/follow/:userId', protect, unfollowUser);
-router.get('/follow-status/:userId', protect, checkFollowStatus);
 
-// This should come AFTER all other specialized routes
+// User profile routes
 router.get('/:id', protect, getUserById);
 router.put('/:id', protect, updateUser);
 router.delete('/:id', protect, deleteUser);

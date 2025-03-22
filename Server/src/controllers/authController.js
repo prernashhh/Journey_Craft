@@ -36,10 +36,10 @@ const validateRegistration = (name, email, password) => {
     };
 };
 
-// Update the register function to accept role
+// Update the register function to accept role and interests
 const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, interests } = req.body;
 
         // Validate required fields
         if (!name || !email || !password) {
@@ -64,12 +64,13 @@ const register = async (req, res) => {
             });
         }
 
-        // Create user with role (default to 'traveller' if not specified)
+        // Create user with role and interests (default to 'traveller' if not specified)
         const user = await User.create({
             name: name.trim(),
             email: email.toLowerCase(),
             password,
-            role: role || 'traveller'
+            role: role || 'traveller',
+            interests: interests || []
         });
 
         // Generate token
@@ -83,7 +84,8 @@ const register = async (req, res) => {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    interests: user.interests
                 },
                 token
             }
@@ -217,10 +219,39 @@ const googleAuth = async (req, res) => {
     }
 };
 
+const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    interests: user.interests,
+                    followers: user.followers,
+                    following: user.following
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
+};
+
 module.exports = {
     register,
     login,
     getProfile,
     updateProfile,
-    googleAuth
+    googleAuth,
+    getMe
 };
