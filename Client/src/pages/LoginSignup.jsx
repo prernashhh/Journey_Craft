@@ -53,7 +53,13 @@ function LoginSignup({ onClose }) {
         const { token, user } = response.data.data;
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        navigate('/interests');
+        
+        // Only navigate to interests page if user is a traveller
+        if (registerData.role === 'traveller') {
+          navigate('/interests');
+        } else {
+          navigate('/manager-dashboard');
+        }
       }
       onClose();
     } catch (err) {
