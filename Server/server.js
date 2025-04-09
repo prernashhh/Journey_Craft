@@ -66,6 +66,10 @@ app.use((req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Travel App API!');
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
