@@ -67,7 +67,7 @@ app.use((req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the Travel App API!');
+  res.send('Welcome to the Travel App API! hello');
 });
 
 const PORT = process.env.PORT || 5000;
