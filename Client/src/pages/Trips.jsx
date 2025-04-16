@@ -51,7 +51,12 @@ function Trips() {
   };
 
   const handleCreateTrip = () => {
-    navigate('/create-trip');
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (currentUser?.role === 'trip_manager') {
+      navigate('/create-trip');
+    } else {
+      navigate('/travel-booking');
+    }
   };
 
   if (loading) return <div className="loading">Loading itineraries...</div>;

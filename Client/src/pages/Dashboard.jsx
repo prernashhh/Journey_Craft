@@ -7,6 +7,7 @@ import './Dashboard.css';
 import EventDetailsModal from '../components/EventDetailsModal';
 import ItineraryDetailsModal from '../components/ItineraryDetailsModal';
 import Navbar from '../components/Navbar';
+import TravelBooking from './TravelBooking'; // Add this import
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -19,15 +20,27 @@ function Dashboard() {
   const [selectedItinerary, setSelectedItinerary] = useState(null);
 
   useEffect(() => {
+    // Check for user and token first
     if (!user) {
-      navigate('/');
+      navigate('/login');
       return;
     }
 
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
+        
+        // Check if token exists
+        if (!token) {
+          logout(); // Call logout to clear auth context
+          navigate('/login');
+          return;
+        }
+
+        const headers = { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
 
         const [eventsRes, itinerariesRes] = await Promise.all([
           axios.get('http://localhost:5000/api/events', { headers }),
@@ -36,20 +49,26 @@ function Dashboard() {
 
         setEvents(eventsRes.data);
         setItineraries(itinerariesRes.data);
+        setError(null);
+
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load data');
+        
+        // Handle different error scenarios
+        if (err.response?.status === 401) {
+          setError('Session expired. Please login again.');
+          logout();
+          navigate('/login');
+        } else {
+          setError('Failed to load dashboard data. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [user, navigate]);
-
-  const handleCreateTrip = () => {
-    navigate('/create-trip');
-  };
+  }, [user, navigate, logout]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -57,18 +76,11 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <Navbar />
-      <div className="navbar-spacer"></div> {/* Add this spacer */}
+      <div className="navbar-spacer"></div>
       
       <main className="dashboard-content">
-        <section className="welcome-section">
-          <h1>Welcome, {user?.name}</h1>
-          <p><br/></p>
-          <button 
-            className="create-trip-btn"
-            onClick={handleCreateTrip}
-          >
-            Create Trip
-          </button>
+        <section className="booking-section">
+          <TravelBooking />
         </section>
 
         <section id="events" className="dashboard-section">

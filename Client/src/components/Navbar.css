@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1rem 2cap;
   background-color: rgb(255, 255, 255);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: fixed; /* Change from relative to fixed */
@@ -11,6 +11,7 @@
   right: 0;
   width: 100%;
   z-index: 1000; /* Ensure navbar is above other content */
+  height: 70px
 }
 
 /* Add this to create space for the fixed navbar */

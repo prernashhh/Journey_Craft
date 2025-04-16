@@ -15,6 +15,7 @@ import EditTrip from './pages/EditTrip';
 import Rewards from './pages/Rewards';
 import Messages from './pages/Messages';
 import Interests from './pages/Interests';
+import TravelBooking from './pages/TravelBooking';
 import './App.css';
 
 function App() {
@@ -108,6 +109,11 @@ function App() {
         <Route 
           path="/interests" 
           element={<Interests />} 
+        />
+
+        <Route 
+          path="/travel-booking" 
+          element={<TravelBooking />} 
         />
       </Routes>
       {isAuthenticated && <Footer />}

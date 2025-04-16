@@ -3,15 +3,9 @@
   background-color: #f8fafc;
 }
 
-.dashboard-content {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 /* Update the welcome-section styles */
 .welcome-section {
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
   padding: 3rem 2rem;
   border-radius: 1rem;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
