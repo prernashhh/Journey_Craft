@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, User, Lock, AlertCircle, LogIn, UserPlus } from "lucide-react";
+import { AlertCircle, LogIn, UserPlus } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -139,8 +139,51 @@ function LoginSignup({ onClose }) {
             <>
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
-                <div className="input-with-icon">
-                  <Mail size={18} className="input-icon" />
+                <input 
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input 
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                  minLength={6}
+                />
+              </div>
+            </>
+          ) : (
+            // Signup form (horizontal layout)
+            <>
+              <div className="form-row signup-form-row">
+                <div className="form-group">
+                  <label htmlFor="name">Full Name</label>
+                  <input 
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    required
+                    minLength={2}
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
                   <input 
                     type="email"
                     id="email"
@@ -153,10 +196,9 @@ function LoginSignup({ onClose }) {
                 </div>
               </div>
               
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <div className="input-with-icon">
-                  <Lock size={18} className="input-icon" />
+              <div className="form-row signup-form-row">
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
                   <input 
                     type="password"
                     id="password"
@@ -167,63 +209,6 @@ function LoginSignup({ onClose }) {
                     required
                     minLength={6}
                   />
-                </div>
-              </div>
-            </>
-          ) : (
-            // Signup form (horizontal layout)
-            <>
-              <div className="form-row signup-form-row">
-                <div className="form-group">
-                  <label htmlFor="name">Full Name</label>
-                  <div className="input-with-icon">
-                    <User size={18} className="input-icon" />
-                    <input 
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
-                      required
-                      minLength={2}
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="email">Email Address</label>
-                  <div className="input-with-icon">
-                    <Mail size={18} className="input-icon" />
-                    <input 
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter your email"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="form-row signup-form-row">
-                <div className="form-group">
-                  <label htmlFor="password">Password</label>
-                  <div className="input-with-icon">
-                    <Lock size={18} className="input-icon" />
-                    <input 
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Enter your password"
-                      required
-                      minLength={6}
-                    />
-                  </div>
                 </div>
                 
                 <div className="form-group">
