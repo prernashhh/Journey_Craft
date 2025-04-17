@@ -32,13 +32,21 @@ const app = express();
 connectDB();
 
 // Global Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Your frontend URL (adjust port if needed)
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
+});
+
+// Add this with your routes
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'Server is running' });
 });
 
 // Routes

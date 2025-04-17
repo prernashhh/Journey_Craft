@@ -299,3 +299,138 @@
   color: #1E3A8A;
   margin-bottom: 1rem;
 }
+
+.popular-places-section {
+  margin-top: 2rem;
+  background-color: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.popular-places-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1E3A8A;
+  margin-bottom: 0.5rem;
+}
+
+.section-description {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.popular-places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.popular-place-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.popular-place-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.popular-place-card.selected {
+  border: 2px solid #1E3A8A;
+}
+
+.place-image-container {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.place-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.popular-place-card:hover .place-image-container img {
+  transform: scale(1.05);
+}
+
+.selected-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.place-details {
+  padding: 1rem;
+}
+
+.place-details h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.place-details p {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.event-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  margin-top: 6px;
+  font-size: 0.875rem;
+}
+
+.duration {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.notes-section {
+  margin-top: 2rem;
+}
+
+.notes-input {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.notes-input:focus {
+  outline: none;
+  border-color: #1E3A8A;
+  box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
+}
+
+@media (max-width: 640px) {
+  .popular-places-grid {
+    grid-template-columns: 1fr;
+  }
+}

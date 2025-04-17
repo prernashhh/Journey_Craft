@@ -43,11 +43,21 @@ function Dashboard() {
           'Content-Type': 'application/json'
         };
 
+        console.log('Attempting to connect to backend...');
+        
+        // Try with a timeout to avoid long waiting periods
         const [eventsRes, itinerariesRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/events', { headers }),
-          axios.get('http://localhost:5000/api/itineraries', { headers })
+          axios.get('http://localhost:5000/api/events', { 
+            headers,
+            timeout: 5000 // 5 second timeout
+          }),
+          axios.get('http://localhost:5000/api/itineraries', { 
+            headers,
+            timeout: 5000 // 5 second timeout
+          })
         ]);
 
+        console.log('Successfully connected to backend');
         setEvents(eventsRes.data);
         setItineraries(itinerariesRes.data);
         setError(null);
@@ -55,8 +65,10 @@ function Dashboard() {
       } catch (err) {
         console.error('Error fetching data:', err);
         
-        // Handle different error scenarios
-        if (err.response?.status === 401) {
+        // Provide more specific error message based on error type
+        if (err.code === 'ERR_NETWORK' || err.code === 'ECONNREFUSED') {
+          setError('Cannot connect to the server. Please ensure the backend server is running.');
+        } else if (err.response?.status === 401) {
           setError('Session expired. Please login again.');
           logout();
           navigate('/login');

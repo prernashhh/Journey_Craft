@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Calendar, MapPin, Hotel, Plane, Train, Bus, Car, Mountain, Utensils, Umbrella, Check, ChevronRight, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Calendar, MapPin, Hotel, Plane, Train, Bus, Car, Mountain, Utensils, Umbrella, Check, ChevronRight, Clock, Globe } from "lucide-react";
 import axios from "axios";
 import "./custom-itinerary.css";
 
@@ -8,6 +8,7 @@ export function CustomItinerary() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [formData, setFormData] = useState({
     destination: "",
+    selectedPopularPlaces: [],
     dateRange: {
       from: new Date(),
       to: new Date(new Date().setDate(new Date().getDate() + 5)),
@@ -20,6 +21,74 @@ export function CustomItinerary() {
     selectedAttractions: [],
     additionalNotes: "",
   });
+
+  // Hardcoded popular places for specific destinations
+  const popularDestinations = {
+    "Delhi": [
+      { 
+        id: "delhi1", 
+        name: "Red Fort", 
+        description: "Historic fort built in the 17th century",
+        image: "https://images.unsplash.com/photo-1585484173186-5f8757105b25?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "delhi2", 
+        name: "Qutub Minar", 
+        description: "UNESCO World Heritage site with a 73-meter tall tower",
+        image: "https://images.unsplash.com/photo-1587135941948-670b381f08ce?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "delhi3", 
+        name: "India Gate", 
+        description: "War memorial in the heart of Delhi",
+        image: "https://images.unsplash.com/photo-1586183189334-1393e5f2cb0d?q=80&w=1469&auto=format&fit=crop"
+      },
+      { 
+        id: "delhi4", 
+        name: "Lotus Temple", 
+        description: "Stunning Bahá'í House of Worship shaped like a lotus flower",
+        image: "https://images.unsplash.com/photo-1580188911874-f95af12a219d?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "delhi5", 
+        name: "Humayun's Tomb", 
+        description: "Magnificent tomb that inspired the Taj Mahal",
+        image: "https://images.unsplash.com/photo-1610469385253-ef7144245faa?q=80&w=1470&auto=format&fit=crop"
+      }
+    ],
+    "Manali": [
+      { 
+        id: "manali1", 
+        name: "Solang Valley", 
+        description: "Adventure sports hub with skiing and paragliding",
+        image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "manali2", 
+        name: "Hadimba Temple", 
+        description: "Ancient wooden temple dedicated to Goddess Hadimba",
+        image: "https://images.unsplash.com/photo-1573388545311-d8d079204b2d?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "manali3", 
+        name: "Rohtang Pass", 
+        description: "High mountain pass with breathtaking views",
+        image: "https://images.unsplash.com/photo-1518259102261-391241e57e2b?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "manali4", 
+        name: "Old Manali", 
+        description: "Charming village with cafes and vibrant atmosphere",
+        image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?q=80&w=1470&auto=format&fit=crop"
+      },
+      { 
+        id: "manali5", 
+        name: "Jogini Waterfall", 
+        description: "Beautiful waterfall surrounded by pine forests",
+        image: "https://images.unsplash.com/photo-1688749432924-1c324e506f00?q=80&w=1470&auto=format&fit=crop"
+      }
+    ]
+  };
 
   // Sample data
   const hotels = [
@@ -53,15 +122,57 @@ export function CustomItinerary() {
   ];
 
   const attractions = [
-    { id: "attr1", name: "Heritage Walking Tour", type: "Cultural", price: 1200, duration: "3 hours" },
-    { id: "attr2", name: "Adventure Park", type: "Adventure", price: 2000, duration: "Full day" },
-    { id: "attr3", name: "Local Food Tour", type: "Culinary", price: 1500, duration: "4 hours" },
+    { 
+      id: "attr1", 
+      name: "Heritage Walking Tour", 
+      type: "Cultural", 
+      price: 1200, 
+      duration: "3 hours",
+      image: "https://images.unsplash.com/photo-1531816458010-fb7685eecbcb?q=80&w=1470&auto=format&fit=crop"
+    },
+    { 
+      id: "attr2", 
+      name: "Adventure Park", 
+      type: "Adventure", 
+      price: 2000, 
+      duration: "Full day",
+      image: "https://images.unsplash.com/photo-1499242611767-cf8b9be02854?q=80&w=1470&auto=format&fit=crop"
+    },
+    { 
+      id: "attr3", 
+      name: "Local Food Tour", 
+      type: "Culinary", 
+      price: 1500, 
+      duration: "4 hours",
+      image: "https://images.unsplash.com/photo-1530062845289-9109b2c9c868?q=80&w=1470&auto=format&fit=crop"
+    },
   ];
 
   const events = [
-    { id: "event1", name: "Local Music Festival", date: "Next Saturday", price: 1500, type: "Entertainment" },
-    { id: "event2", name: "Cultural Exhibition", date: "This Weekend", price: 500, type: "Cultural" },
-    { id: "event3", name: "Food & Wine Festival", date: "Next Month", price: 2000, type: "Culinary" },
+    { 
+      id: "event1", 
+      name: "Local Music Festival", 
+      date: "Next Saturday", 
+      price: 1500, 
+      type: "Entertainment",
+      image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1470&auto=format&fit=crop"
+    },
+    { 
+      id: "event2", 
+      name: "Cultural Exhibition", 
+      date: "This Weekend", 
+      price: 500, 
+      type: "Cultural",
+      image: "https://images.unsplash.com/photo-1560523159-4a9692d222f8?q=80&w=1470&auto=format&fit=crop"
+    },
+    { 
+      id: "event3", 
+      name: "Food & Wine Festival", 
+      date: "Next Month", 
+      price: 2000, 
+      type: "Culinary",
+      image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1470&auto=format&fit=crop"
+    },
   ];
 
   const handleNext = () => {
@@ -97,6 +208,7 @@ export function CustomItinerary() {
       // Reset form
       setFormData({
         destination: "",
+        selectedPopularPlaces: [],
         dateRange: {
           from: new Date(),
           to: new Date(new Date().setDate(new Date().getDate() + 5)),
@@ -124,9 +236,26 @@ export function CustomItinerary() {
     }));
   };
 
+  // Get popular places for the selected destination
+  const getPopularPlaces = () => {
+    const destination = formData.destination.trim();
+    
+    // Check if we have data for this destination
+    // Using case-insensitive comparison to match user input with our data
+    for (const [key, places] of Object.entries(popularDestinations)) {
+      if (destination.toLowerCase() === key.toLowerCase()) {
+        return places;
+      }
+    }
+    
+    // Return empty array if no match found
+    return [];
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
+        const popularPlaces = getPopularPlaces();
         return (
           <div className="step-content">
             <h2>Where would you like to go?</h2>
@@ -134,7 +263,7 @@ export function CustomItinerary() {
             <div className="input-group">
               <input
                 type="text"
-                placeholder="Search for a city or region"
+                placeholder="Search for a city or region (try 'Delhi' or 'Manali')"
                 value={formData.destination}
                 onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                 className="destination-input"
@@ -144,6 +273,37 @@ export function CustomItinerary() {
               <div className="selection-preview">
                 <MapPin className="icon" />
                 <span>{formData.destination}</span>
+              </div>
+            )}
+
+            {/* Show popular places if we have data for this destination */}
+            {popularPlaces.length > 0 && (
+              <div className="popular-places-section">
+                <h3><Globe size={20} /> Popular Places in {formData.destination}</h3>
+                <p className="section-description">Select the places you'd like to visit</p>
+                
+                <div className="popular-places-grid">
+                  {popularPlaces.map((place) => (
+                    <div
+                      key={place.id}
+                      className={`popular-place-card ${formData.selectedPopularPlaces.includes(place.id) ? 'selected' : ''}`}
+                      onClick={() => toggleSelection("selectedPopularPlaces", place.id)}
+                    >
+                      <div className="place-image-container">
+                        <img src={place.image} alt={place.name} />
+                        {formData.selectedPopularPlaces.includes(place.id) && (
+                          <div className="selected-overlay">
+                            <Check size={24} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="place-details">
+                        <h4>{place.name}</h4>
+                        <p>{place.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -259,74 +419,63 @@ export function CustomItinerary() {
         return (
           <div className="step-content">
             <h2>Add to your itinerary</h2>
-            <p className="step-description">Select hotels, transport, and attractions</p>
+            <p className="step-description">Select attractions and events you'd like to experience</p>
 
             <div className="selection-sections">
-              {/* Hotels Section */}
-              <div className="selection-section">
-                <h3><Hotel size={20} /> Hotels</h3>
-                <div className="cards-grid">
-                  {hotels.map((hotel) => (
-                    <div
-                      key={hotel.id}
-                      className={`selection-card ${formData.selectedHotels.includes(hotel.id) ? 'selected' : ''}`}
-                      onClick={() => toggleSelection("selectedHotels", hotel.id)}
-                    >
-                      <img src={hotel.image} alt={hotel.name} />
-                      <div className="card-content">
-                        <h4>{hotel.name}</h4>
-                        <span className="badge">{hotel.rating}</span>
-                        <p className="price">₹{hotel.price}/night</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Transport Section */}
-              <div className="selection-section">
-                <h3><Plane size={20} /> Transport</h3>
-                <div className="cards-grid">
-                  {transport.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`selection-card ${formData.selectedTransport.includes(item.id) ? 'selected' : ''}`}
-                      onClick={() => toggleSelection("selectedTransport", item.id)}
-                    >
-                      <div className="card-content">
-                        <h4>{item.name}</h4>
-                        <span className="badge">{item.type}</span>
-                        <div className="time">
-                          <Clock size={16} />
-                          {item.time}
-                        </div>
-                        <p className="price">₹{item.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Attractions Section */}
               <div className="selection-section">
-                <h3><Mountain size={20} /> Attractions & Events</h3>
+                <h3><Mountain size={20} /> Popular Attractions</h3>
                 <div className="cards-grid">
-                  {[...attractions, ...events].map((item) => (
+                  {attractions.map((item) => (
                     <div
                       key={item.id}
                       className={`selection-card ${formData.selectedAttractions.includes(item.id) ? 'selected' : ''}`}
                       onClick={() => toggleSelection("selectedAttractions", item.id)}
                     >
+                      <img src={item.image} alt={item.name} />
                       <div className="card-content">
                         <h4>{item.name}</h4>
                         <span className="badge">{item.type}</span>
-                        {item.duration && <p className="duration">{item.duration}</p>}
-                        {item.date && <p className="date">{item.date}</p>}
+                        {item.duration && <p className="duration">Duration: {item.duration}</p>}
                         <p className="price">₹{item.price}</p>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Events Section */}
+              <div className="selection-section">
+                <h3><Calendar size={20} /> Events & Festivals</h3>
+                <div className="cards-grid">
+                  {events.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`selection-card ${formData.selectedAttractions.includes(item.id) ? 'selected' : ''}`}
+                      onClick={() => toggleSelection("selectedAttractions", item.id)}
+                    >
+                      <img src={item.image} alt={item.name} />
+                      <div className="card-content">
+                        <h4>{item.name}</h4>
+                        <span className="badge">{item.type}</span>
+                        <p className="event-date"><Clock size={14} /> {item.date}</p>
+                        <p className="price">₹{item.price}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional Notes */}
+              <div className="selection-section notes-section">
+                <h3>Additional Notes</h3>
+                <textarea
+                  placeholder="Any specific requests or preferences for your activities?"
+                  value={formData.additionalNotes}
+                  onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                  rows={4}
+                  className="notes-input"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -362,7 +511,27 @@ export function CustomItinerary() {
                 )}
               </div>
 
-              {/* Add more review sections for selected items */}
+              {/* Selected Activities Review */}
+              {formData.selectedAttractions.length > 0 && (
+                <div className="review-item">
+                  <h3>Selected Activities & Events</h3>
+                  <ul>
+                    {formData.selectedAttractions.map(itemId => {
+                      const item = [...attractions, ...events].find(a => a.id === itemId);
+                      return item ? (
+                        <li key={itemId}>{item.name} ({item.type})</li>
+                      ) : null;
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {formData.additionalNotes && (
+                <div className="review-item">
+                  <h3>Additional Notes</h3>
+                  <p>{formData.additionalNotes}</p>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -385,7 +554,7 @@ export function CustomItinerary() {
               {step === 1 && "Destination"}
               {step === 2 && "Dates"}
               {step === 3 && "Preferences"}
-              {step === 4 && "Add Items"}
+              {step === 4 && "Activities"}
               {step === 5 && "Review"}
             </span>
           </div>
@@ -409,8 +578,7 @@ export function CustomItinerary() {
             className="next-button"
             onClick={handleNext}
             disabled={
-              (currentStep === 1 && !formData.destination) ||
-              (currentStep === 2 && (!formData.dateRange.from || !formData.dateRange.to))
+              (currentStep === 1 && !formData.destination)
             }
           >
             Continue
