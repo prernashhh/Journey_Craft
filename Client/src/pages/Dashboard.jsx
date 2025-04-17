@@ -8,6 +8,7 @@ import EventDetailsModal from '../components/EventDetailsModal';
 import ItineraryDetailsModal from '../components/ItineraryDetailsModal';
 import Navbar from '../components/Navbar';
 import TravelBooking from './TravelBooking'; // Add this import
+import { ItineraryCard } from "../components/itinerary-card";
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -76,7 +77,6 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <Navbar />
-      <div className="navbar-spacer"></div>
       
       <main className="dashboard-content">
         <section className="booking-section">
@@ -120,37 +120,30 @@ function Dashboard() {
 
         <section id="itineraries" className="dashboard-section">
           <h2>Your Itineraries</h2>
-          <div className="itineraries-grid">
-            {itineraries.map(itinerary => (
-              <div 
-                key={itinerary._id} 
-                className="itinerary-card"
-                onClick={() => setSelectedItinerary(itinerary)}
-              >
-                <div className="itinerary-details">
-                  <h3>{itinerary.title}</h3>
-                  <p className="itinerary-description">{itinerary.description}</p>
-                  <div className="itinerary-info">
-                    <div className="itinerary-stats">
-                      <span>{itinerary.days} Days</span>
-                      <span>{itinerary.nights} Nights</span>
-                      <span>₹{itinerary.price}</span>
-                    </div>
-                    <div className="itinerary-destinations">
-                      {itinerary.destinations.map((dest, index) => (
-                        <span key={index} className="destination-tag">
-                          <MapPin size={14} /> {dest.location}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="itinerary-status">
-                    Status: {itinerary.status}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          
+          {itineraries.length === 0 ? (
+            <div className="no-data">
+              <p>You haven't booked any itineraries yet.</p>
+              <button onClick={() => navigate('/trips')}>Browse Itineraries</button>
+            </div>
+          ) : (
+            <div className="itineraries-grid">
+              {itineraries.map(itinerary => (
+                <ItineraryCard 
+                  key={itinerary._id}
+                  title={itinerary.title}
+                  destination={itinerary.destination}
+                  duration={`${itinerary.days} Days / ${itinerary.nights} Nights`}
+                  price={itinerary.price}
+                  rating={4.5}
+                  image={itinerary.image || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1470&auto=format&fit=crop"}
+                  highlights={itinerary.destinations.map(dest => dest.location)}
+                  included={["Hotels", "Sightseeing", "Some meals"]}
+                  itineraryId={itinerary._id}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </main>
       {selectedEvent && (

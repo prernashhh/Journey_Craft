@@ -1,89 +1,99 @@
+import React, { useState, useEffect } from "react";
 import { ItineraryCard } from "./itinerary-card";
+import axios from "axios";
+import './itinerary-results.css';
+import { Loader } from "lucide-react";
 
 export function ItineraryResults({ city }) {
-  const itineraries = {
-    Manali: [
-      {
-        title: "Manali Adventure Package",
-        destination: "Manali, Himachal Pradesh",
-        duration: "3 Days / 2 Nights",
-        price: 6999,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["Solang Valley", "Hadimba Temple", "Mall Road", "River Rafting"],
-        included: ["Hotels", "Breakfast", "Sightseeing", "Transfers"],
-      },
-      {
-        title: "Manali Honeymoon Special",
-        destination: "Manali, Himachal Pradesh",
-        duration: "5 Days / 4 Nights",
-        price: 12999,
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1626265774643-f1a5b5dc54a9?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["Rohtang Pass", "Solang Valley", "Private Dinner", "Couple Activities"],
-        included: ["Luxury Hotel", "All Meals", "Private Cab", "Guide"],
-      },
-      {
-        title: "Manali Adventure Plus",
-        destination: "Manali, Himachal Pradesh",
-        duration: "4 Days / 3 Nights",
-        price: 8999,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1553001081-6f95a1ceb5d3?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["Paragliding", "Skiing", "Camping", "Trekking"],
-        included: ["Hotels", "Activities", "Equipment", "Guide"],
-      },
-    ],
-    Jaipur: [
-      {
-        title: "Jaipur Heritage Walk",
-        destination: "Jaipur, Rajasthan",
-        duration: "2 Days / 1 Night",
-        price: 3999,
-        rating: 4.3,
-        image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["City Palace", "Hawa Mahal", "Local Markets", "Food Tour"],
-        included: ["Hotel", "Breakfast", "Guide", "Transfers"],
-      },
-      {
-        title: "Royal Jaipur Experience",
-        destination: "Jaipur, Rajasthan",
-        duration: "4 Days / 3 Nights",
-        price: 9999,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["Amber Fort", "Elephant Ride", "Sound & Light Show", "Royal Dinner"],
-        included: ["Heritage Hotel", "All Meals", "Private Car", "Guide"],
-      },
-    ],
-    Goa: [
-      {
-        title: "Goa Beach & Culture",
-        destination: "North & South Goa",
-        duration: "6 Days / 5 Nights",
-        price: 24999,
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
-        highlights: ["Beach Hopping", "Water Sports", "Cruise", "Old Goa Churches"],
-        included: ["Beach Resort", "Breakfast", "Bike Rental", "Activities"],
-      },
-    ],
-  };
+  const [itineraries, setItineraries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const cityItineraries = itineraries[city] || [];
+  useEffect(() => {
+    const fetchItineraries = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        
+        // Use query parameter to filter by destination
+        const response = await axios.get(`http://localhost:5000/api/itineraries`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { destination: city }
+        });
 
-  if (cityItineraries.length === 0) {
+        // Fixed filter to safely handle undefined values
+        const filteredItineraries = response.data.filter(itinerary => {
+          // Ensure itinerary status and destination exist before calling toLowerCase()
+          const hasPublishedStatus = itinerary.status === 'Published';
+          
+          // Check if destination exists and includes the city
+          const mainDestinationMatch = itinerary.destination && 
+            itinerary.destination.toLowerCase().includes(city.toLowerCase());
+          
+          // Check if any destination location includes the city
+          const destinationsMatch = itinerary.destinations && 
+            Array.isArray(itinerary.destinations) &&
+            itinerary.destinations.some(dest => 
+              dest && dest.location && dest.location.toLowerCase().includes(city.toLowerCase())
+            );
+          
+          return hasPublishedStatus && (mainDestinationMatch || destinationsMatch);
+        });
+
+        setItineraries(filteredItineraries);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching itineraries:", err);
+        setError("Failed to load itineraries");
+        setLoading(false);
+      }
+    };
+
+    if (city) {
+      fetchItineraries();
+    }
+  }, [city]);
+
+  // Show loading state
+  if (loading) {
     return (
-      <div className="no-itineraries">
-        <p>No itineraries found for {city}</p>
+      <div className="loading-container">
+        <Loader className="animate-spin" size={32} />
+        <p>Finding the best trips for you...</p>
       </div>
     );
   }
 
+  // Show error state
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  // Show empty state
+  if (itineraries.length === 0) {
+    return (
+      <div className="no-results">
+        <p>No itineraries found for {city}. Try another destination or check back later.</p>
+      </div>
+    );
+  }
+
+  // Show results
   return (
-    <div className="itinerary-grid">
-      {cityItineraries.map((itinerary, index) => (
-        <ItineraryCard key={index} {...itinerary} />
+    <div className="itinerary-results-grid">
+      {itineraries.map((itinerary) => (
+        <ItineraryCard 
+          key={itinerary._id}
+          title={itinerary.title}
+          destination={itinerary.destination}
+          duration={`${itinerary.days} Days / ${itinerary.nights} Nights`}
+          price={itinerary.price}
+          rating={4.5} // You may want to add a rating field to your schema
+          image={itinerary.image || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1470&auto=format&fit=crop"}
+          highlights={itinerary.destinations.map(dest => dest.location)}
+          included={["Hotels", "Sightseeing", "Some meals"]} // You may want to add this to your schema
+          itineraryId={itinerary._id}
+        />
       ))}
     </div>
   );

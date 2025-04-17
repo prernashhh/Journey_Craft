@@ -70,15 +70,15 @@ function Dashboard() {
   return (
     <div className="app">
       <Navbar isHomePage={true} onLoginClick={() => setShowLoginSignup(true)} />
-      <div className="navbar-spacer"></div> {/* Add this spacer */}
+      <div className="navbar-spacer"></div> {/* The navbar-spacer should be outside of the hero section */}
 
       {/* Login/Signup Modal */}
       {showLoginSignup && <LoginSignup onClose={closeLoginSignup} />}
 
       {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">Welcome to Journey Craft</h1>
+      <section className="home-hero">
+        <div className="home-hero-content">
+          <h1 className="home-hero-title">Welcome to Journey Craft</h1>
           <button className="primary-button" onClick={() => setShowLoginSignup(true)}>Get started</button>
         </div>
       </section>

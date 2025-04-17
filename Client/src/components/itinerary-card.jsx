@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Star, Calendar, Heart } from "lucide-react";
+import { Star, Calendar, Heart, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export function ItineraryCard({
   title,
@@ -10,99 +12,137 @@ export function ItineraryCard({
   image,
   highlights,
   included,
+  itineraryId
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
-  const itineraryId = title.toLowerCase().replace(/\s+/g, "-");
-
+  // Check if itinerary is in wishlist
   useEffect(() => {
-    const savedItineraries = localStorage.getItem("favoriteItineraries");
-    if (savedItineraries) {
-      const favoriteIds = JSON.parse(savedItineraries);
-      setIsFavorite(favoriteIds.includes(itineraryId));
-    }
+    const checkWishlistStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token || !itineraryId) return;
+
+        const response = await axios.get(
+          `http://localhost:5000/api/wishlist/check/itinerary/${itineraryId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setIsFavorite(response.data.inWishlist);
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+
+    checkWishlistStatus();
   }, [itineraryId]);
 
-  const toggleFavorite = (e) => {
+  const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    setIsFavorite(!isFavorite);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to add to favorites');
+        return;
+      }
 
-    const savedItineraries = localStorage.getItem("favoriteItineraries");
-    let favoriteIds = savedItineraries ? JSON.parse(savedItineraries) : [];
-
-    if (isFavorite) {
-      favoriteIds = favoriteIds.filter((id) => id !== itineraryId);
-    } else {
-      favoriteIds.push(itineraryId);
+      if (isFavorite) {
+        await axios.delete(
+          `http://localhost:5000/api/wishlist/itineraries/${itineraryId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        await axios.post(
+          'http://localhost:5000/api/wishlist/itineraries',
+          { itineraryId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update favorites');
     }
+  };
 
-    localStorage.setItem("favoriteItineraries", JSON.stringify(favoriteIds));
+  const handleCardClick = () => {
+    navigate(`/itineraries/${itineraryId}`);
   };
 
   return (
     <div
-      className={`itinerary-card ${isHovered ? "hovered" : ""}`}
+      className="itinerary-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div className="image-container">
-        <img src={image || "/placeholder.svg"} alt={title} className="card-img" />
-        <div className="img-gradient" />
-        <button className="favorite-btn" onClick={toggleFavorite}>
-          <Heart className={`heart-icon ${isFavorite ? "active" : ""}`} />
+        <img src={image} alt={title} />
+        <div className="img-overlay"></div>
+        <button 
+          className={`favorite-button ${isFavorite ? 'active' : ''}`}
+          onClick={toggleFavorite}
+        >
+          <Heart fill={isFavorite ? "#fff" : "none"} stroke={isFavorite ? "none" : "#fff"} />
         </button>
-        <div className="rating-badge">
-          <Star className="star-icon" />
+        <div className="rating">
+          <Star size={16} fill="#FFC857" stroke="none" />
           <span>{rating}</span>
         </div>
       </div>
 
       <div className="card-content">
-        <div className="title-section">
-          <h3 className="title">{title}</h3>
-          <p className="destination">{destination}</p>
+        <div className="card-header">
+          <h3>{title}</h3>
+          <p className="destination-text">
+            <MapPin size={14} />
+            {destination}
+          </p>
         </div>
 
-        <div className="duration">
-          <Calendar className="calendar-icon" />
+        <div className="duration-container">
+          <Calendar size={16} className="icon" />
           <span>{duration}</span>
         </div>
 
-        <div className="info-section">
-          <div>
-            <h4>Highlights</h4>
-            <div className="badge-group">
+        <div className="details-section">
+          <div className="highlights">
+            <h4>Destinations</h4>
+            <div className="tags">
               {highlights.slice(0, 2).map((highlight, index) => (
-                <span key={index} className="badge">{highlight}</span>
+                <span key={index} className="tag">{highlight}</span>
               ))}
               {highlights.length > 2 && (
-                <span className="badge">+{highlights.length - 2} more</span>
+                <span className="tag more">+{highlights.length - 2} more</span>
               )}
             </div>
           </div>
 
-          <div>
-            <h4>Included</h4>
-            <div className="badge-group">
-              {included.slice(0, 2).map((item, index) => (
-                <span key={index} className="badge">{item}</span>
-              ))}
-              {included.length > 2 && (
-                <span className="badge">+{included.length - 2} more</span>
-              )}
+          {included && included.length > 0 && (
+            <div className="included">
+              <h4>Included</h4>
+              <div className="tags">
+                {included.slice(0, 2).map((item, index) => (
+                  <span key={index} className="tag">{item}</span>
+                ))}
+                {included.length > 2 && (
+                  <span className="tag more">+{included.length - 2} more</span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        <div className="footer">
-          <p className="price">
+        <div className="card-footer">
+          <div className="price">
             ₹{price.toLocaleString()}
-            <span className="per-person"> per person</span>
-          </p>
-          <button className="book-btn">Book Now</button>
+            <span className="price-subtitle">per person</span>
+          </div>
+          <button className="book-now-button">View Details</button>
         </div>
       </div>
     </div>

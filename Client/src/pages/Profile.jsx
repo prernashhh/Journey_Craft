@@ -62,16 +62,24 @@ function Profile() {
     }
   };
 
+  // Update fetchWishlist with better error handling
   const fetchWishlist = async () => {
     try {
       setWishlistLoading(true);
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+      
       const response = await axios.get('http://localhost:5000/api/wishlist', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setWishlistData(response.data);
     } catch (err) {
       console.error('Error fetching wishlist:', err);
+      // Display user-friendly error message
+      alert('Could not load your wishlist. Please try again later.');
     } finally {
       setWishlistLoading(false);
     }

@@ -8,17 +8,13 @@ import {
   Car,
 } from "lucide-react";
 
-import Navbar from "../components/navbar";
-// import Footer from "../components/footer";
+import Navbar from "../components/Navbar";
 import FlightSearch from "../components/flight-search";
 import HotelSearch from "../components/hotel-search";
 import TrainSearch from "../components/train-search";
 import BusSearch from "../components/bus-search";
 import CabSearch from "../components/cab-search";
 import TripSearch from "../components/trip-search";
-// import TrendingDestinations from "../components/trending-destinations";
-// import SpecialOffers from "../components/special-offers";
-// import TravelInfoCards from "../components/travel-info-cards";
 
 import "./TravelBooking.css";
 
@@ -38,14 +34,14 @@ function TravelBooking() {
     <div className="travel-page">
       <Navbar />
 
-      <div className="hero">
-        <img
-          src="https://images.unsplash.com/photo-1585123388867-3bfe6dd4bdbf?auto=format&fit=crop&w=2000&q=80"
-          alt="Travel"
-          className="hero-image"
+      <div className="travel-banner">
+        <img 
+          src="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80" 
+          alt="Travel" 
+          className="travel-banner-image" 
         />
-        <div className="overlay" />
-        <div className="hero-content">
+        <div className="travel-overlay"></div>
+        <div className="travel-banner-content">
           <h1>
             Craft Your Perfect <span>Journey</span>
           </h1>
@@ -80,11 +76,6 @@ function TravelBooking() {
           {activeSection === "cabs" && <CabSearch />}
         </div>
       </div>
-
-      {/* <TravelInfoCards />
-      <TrendingDestinations />
-      <SpecialOffers /> */}
-      {/* <Footer /> */}
     </div>
   );
 }
