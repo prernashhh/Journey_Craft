@@ -33,10 +33,10 @@ function TravelBooking() {
   return (
     <div className="travel-page">
       <Navbar />
-
+      
       <div className="travel-banner">
         <img 
-          src="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80" 
+          src="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1470&q=80" 
           alt="Travel" 
           className="travel-banner-image" 
         />
@@ -45,9 +45,7 @@ function TravelBooking() {
           <h1>
             Craft Your Perfect <span>Journey</span>
           </h1>
-          <p>
-            Discover handcrafted experiences and create unforgettable memories
-          </p>
+          <p>Discover handcrafted experiences and create unforgettable memories</p>
         </div>
       </div>
 

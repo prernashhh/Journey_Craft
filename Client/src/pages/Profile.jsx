@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, MapPin, Calendar, Heart, Trash2, Eye, UserCheck, UserPlus, Users } from "lucide-react";
+import { User, Mail, MapPin, Calendar, Heart, Trash2, Eye, UserCheck, UserPlus, Users, Clock } from "lucide-react";
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import './Profile.css';
@@ -29,22 +29,33 @@ function Profile() {
   const [followingList, setFollowingList] = useState([]);
   const [followersList, setFollowersList] = useState([]);
   const [followLoading, setFollowLoading] = useState(false);
+  const [customItineraries, setCustomItineraries] = useState([]);
+  const [currentUser, setCurrentUser] = useState(user);
+
+  const tabs = [
+    { id: 'profile', label: 'Profile' },
+    { id: 'wishlist', label: 'Wishlist' },
+    { id: 'followers', label: 'Followers' },
+    { id: 'following', label: 'Following' },
+    ...(currentUser?.id === user?.id ? [{ id: 'custom-itineraries', label: 'My Itineraries' }] : [])
+  ];
 
   useEffect(() => {
     if (activeTab === 'wishlist') {
       fetchWishlist();
     } else if (activeTab === 'following' || activeTab === 'followers') {
       fetchFollowData();
+    } else if (activeTab === 'custom-itineraries') {
+      const stored = JSON.parse(localStorage.getItem('customItineraries')) || [];
+      setCustomItineraries(stored);
     }
   }, [activeTab]);
 
-  // Update the fetchFollowData function
   const fetchFollowData = async () => {
     try {
       setFollowLoading(true);
       const token = localStorage.getItem('token');
       
-      // Fix these URLs by adding /me before /following and /followers
       const followingResponse = await axios.get('http://localhost:5000/api/users/me/following', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -62,7 +73,6 @@ function Profile() {
     }
   };
 
-  // Update fetchWishlist with better error handling
   const fetchWishlist = async () => {
     try {
       setWishlistLoading(true);
@@ -78,7 +88,6 @@ function Profile() {
       setWishlistData(response.data);
     } catch (err) {
       console.error('Error fetching wishlist:', err);
-      // Display user-friendly error message
       alert('Could not load your wishlist. Please try again later.');
     } finally {
       setWishlistLoading(false);
@@ -138,34 +147,30 @@ function Profile() {
     }
   };
 
-  // Update handleFollow function
   const handleFollow = async (userId) => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`http://localhost:5000/api/users/follow/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchFollowData(); // Refresh the lists
+      fetchFollowData();
     } catch (err) {
       console.error('Error following user:', err);
-      // Add error handling - display message to user
       if (err.response && err.response.data && err.response.data.error) {
         alert(err.response.data.error);
       }
     }
   };
 
-  // Update handleUnfollow function
   const handleUnfollow = async (userId) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`http://localhost:5000/api/users/follow/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchFollowData(); // Refresh the lists
+      fetchFollowData();
     } catch (err) {
       console.error('Error unfollowing user:', err);
-      // Add error handling
       if (err.response && err.response.data && err.response.data.error) {
         alert(err.response.data.error);
       }
@@ -202,30 +207,15 @@ function Profile() {
         </div>
 
         <div className="profile-tabs">
-          <button 
-            className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
-            Profile
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'wishlist' ? 'active' : ''}`}
-            onClick={() => setActiveTab('wishlist')}
-          >
-            Wishlist
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'following' ? 'active' : ''}`}
-            onClick={() => setActiveTab('following')}
-          >
-            Following
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'followers' ? 'active' : ''}`}
-            onClick={() => setActiveTab('followers')}
-          >
-            Followers
-          </button>
+          {tabs.map(tab => (
+            <button 
+              key={tab.id}
+              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -497,6 +487,54 @@ function Profile() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'custom-itineraries' && currentUser?.id === user?.id && (
+          <div className="custom-itineraries-section">
+            <h2>My Custom Itineraries</h2>
+            {customItineraries.length === 0 ? (
+              <p className="no-items-message">No custom itineraries created yet</p>
+            ) : (
+              <div className="itineraries-grid">
+                {customItineraries
+                  .filter(itinerary => itinerary.user?.id === currentUser?.id)
+                  .map(itinerary => (
+                    <div key={itinerary.id} className="itinerary-card">
+                      <div className="itinerary-card-body">
+                        <h3 className="itinerary-title">{itinerary.destination}</h3>
+                        <div className="itinerary-details">
+                          <p className="date-range">
+                            <Calendar size={14} />
+                            {new Date(itinerary.dateRange.from).toLocaleDateString()} - 
+                            {new Date(itinerary.dateRange.to).toLocaleDateString()}
+                          </p>
+                          <p className="duration">
+                            <Clock size={14} />
+                            {Math.ceil((new Date(itinerary.dateRange.to) - new Date(itinerary.dateRange.from)) / (1000 * 60 * 60 * 24))} days
+                          </p>
+                          <div className="preferences">
+                            <p><strong>Hotel:</strong> {itinerary.hotelRating}</p>
+                            <p><strong>Travel:</strong> {itinerary.travelMode}</p>
+                          </div>
+                          {itinerary.selectedAttractions.length > 0 && (
+                            <div className="attractions">
+                              <strong>Selected Activities:</strong>
+                              <ul>
+                                {itinerary.selectedAttractions.map(id => (
+                                  <li key={id}>{id}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          <p className="status">Status: {itinerary.status}</p>
+                          <p className="estimated-price">Estimated Price: {itinerary.estimatedPrice}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         )}
       </div>

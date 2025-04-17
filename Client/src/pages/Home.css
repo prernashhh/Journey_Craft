@@ -119,9 +119,11 @@ body {
 
 /* Hero Section */
 .home-hero {
-  min-height: 80vh;
+  min-height: 100vh; /* Change from 80vh to 100vh to account for navbar height */
+  margin-top: -70px; /* Negative margin to offset navbar height */
+  padding-top: 70px; /* Add padding to prevent content from going under navbar */
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
-            url('https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80'); 
+              url('https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80'); 
   background-size: cover;
   background-position: center;
   display: flex;

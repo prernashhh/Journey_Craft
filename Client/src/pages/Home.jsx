@@ -70,8 +70,7 @@ function Dashboard() {
   return (
     <div className="app">
       <Navbar isHomePage={true} onLoginClick={() => setShowLoginSignup(true)} />
-      <div className="navbar-spacer"></div> {/* The navbar-spacer should be outside of the hero section */}
-
+      
       {/* Login/Signup Modal */}
       {showLoginSignup && <LoginSignup onClose={closeLoginSignup} />}
 

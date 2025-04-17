@@ -192,16 +192,20 @@ export function CustomItinerary() {
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user'));
       
       const itineraryData = {
         ...formData,
+        id: Date.now(), // Temporary unique ID
         status: "Pending Review",
         estimatedPrice: "₹25,000 - ₹35,000",
+        createdAt: new Date().toISOString(),
+        user: user
       };
 
-      await axios.post('http://localhost:5000/api/itineraries/custom', itineraryData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Store in localStorage
+      const existingItineraries = JSON.parse(localStorage.getItem('customItineraries')) || [];
+      localStorage.setItem('customItineraries', JSON.stringify([...existingItineraries, itineraryData]));
 
       setShowConfirmation(true);
       setCurrentStep(1);
